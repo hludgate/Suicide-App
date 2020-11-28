@@ -17,7 +17,7 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     groups = db.Column(db.String(64))
     thoughts = db.Column(db.String(64))
-    #fhir_id = db.Column(db.String, nullable = False)
+    fhir_id = db.Column(db.String, nullable = True)
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
