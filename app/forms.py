@@ -19,12 +19,12 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_username(self, username):
-        #user = User.query.filter_by(username=username.data).first()
+        user = User.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('Please use a different username.')
 
     def validate_email(self, email):
-        #user = User.query.filter_by(email=email.data).first()
+        user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
 feels = ['Very Good','Good','Neutral','Bad','Very Bad']
@@ -37,9 +37,9 @@ class EditProfileForm(FlaskForm):
     thoughts = SelectField(label='thoughts',choices=[(feel, feel) for feel in feels])
 
 class GetPatientForm(FlaskForm):
-    #patients = User.query.filter_by(user_type='Patient').all()
-    #patient_list = []
-    #for patient in patients:
-    #    patient_list.append((patient.username,patient.username))
-    #patient_picked = SelectField(label='Patients',choices=patient_list)
+    patients = User.query.filter_by(user_type='Patient').all()
+    patient_list = []
+    for patient in patients:
+        patient_list.append((patient.username,patient.username))
+    patient_picked = SelectField(label='Patients',choices=patient_list)
     submit = SubmitField('Submit')
