@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Patient: {{ patient }}</h1>
+    <h2>Patient Risk</h2>
+    <p>Based on the patients inputted information as well as their FHIR data the following risk level is considered</p><br>
+    <p>{{ risk }}</p>
+
+
+{% endblock %}

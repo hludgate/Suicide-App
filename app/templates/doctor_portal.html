@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Doctor Portal</h1>
+    <hr>
+    {% for post in posts %}
+    <p>
+    {{ post.patient.username }} says: <b>{{ post.body }}</b>
+    </p>
+    {% endfor %}
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            <h2>Please select which Patient you would like to view:</h2>
+            {{ form.patient_picked.label }}<br>
+            {{ form.patient_picked(cols=50, rows=4) }}<br>
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
