@@ -39,6 +39,7 @@ class GetPatientForm(FlaskForm):
     patients = User.query.filter_by(user_type='Patient').all()
     patient_list = []
     for patient in patients:
-        patient_list.append((patient.username,patient.first_name + ' ' + patient.last_name))
+        if patient.first_name is not None and patient.last_name is not None:
+            patient_list.append((patient.username,patient.first_name + ' ' + patient.last_name))
     patient_picked = SelectField(label='Patients',choices=patient_list)
     submit = SubmitField('Submit')
