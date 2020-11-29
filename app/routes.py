@@ -87,8 +87,13 @@ def user(username):
             form.groups.data = user.groups
         return render_template('edit_profile.html', username=current_user.username,form=form)
     else:
-        
-        form = GetPatientForm()
+        patients = User.query.filter_by(user_type='Patient').all()
+        patient_list = []
+        for patient in patients:
+            #print(patient.username)
+            if patient.first_name is not None and patient.last_name is not None:
+                patient_list.append((patient.username,patient.first_name + ' ' + patient.last_name))
+        form = GetPatientForm(patient_list=patient_list)
         if form.validate_on_submit():
 
             return redirect(url_for('patient_info', patient=form.patient_picked.data))

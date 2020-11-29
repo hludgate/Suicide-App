@@ -40,16 +40,16 @@ class fhirHelper(object):
 
   def findPatient(self,first_name,last_name):
     search = p.Patient.where(struct={'name':last_name,'given':first_name})
-    #print(search.construct())
+    print(search.construct())
     response = self.smartClient.server.request_json(search.construct())
     if "entry" in response:
       for entry in response["entry"]:
-        print(entry)
+        #print(entry)
         self.fhir_id = entry["resource"]["id"]
         break
     else:
       self.fhir_id = 1
-    print(self.fhir_id)
+    #print(self.fhir_id)
     return self.fhir_id
 
   def getPatient(self):

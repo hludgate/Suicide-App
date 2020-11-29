@@ -36,10 +36,12 @@ class EditProfileForm(FlaskForm):
     submit = SubmitField('Submit')
 
 class GetPatientForm(FlaskForm):
-    patients = User.query.filter_by(user_type='Patient').all()
-    patient_list = []
-    for patient in patients:
-        if patient.first_name is not None and patient.last_name is not None:
-            patient_list.append((patient.username,patient.first_name + ' ' + patient.last_name))
-    patient_picked = SelectField(label='Patients',choices=patient_list)
+
+    patient_picked = SelectField(label='Patients',choices=[])
     submit = SubmitField('Submit')
+    def __init__(self, patient_list: list = None, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+        self.patient_list=patient_list
+        self.patient_picked.choices = self._mongo_mock()
+    def _mongo_mock(self) -> list:
+        return [self.patient_list[i] for i in range(len(self.patient_list))]
