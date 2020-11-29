@@ -51,12 +51,21 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, user_type = form.user_type.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('login'))
+        if form.user_type.data == 'Patient':
+            fhObj = fhirHelper()
+            fhir_id = fhObj.findPatient(form.first_name.data,form.last_name.data)
+        else:
+            fhir_id = 0
+        if fhir_id == 1:
+            flash('Cannot find name in FHIR database')
+
+        else:
+            user = User(username=form.username.data, email=form.email.data, user_type = form.user_type.data, fhir_id = fhir_id, first_name=form.first_name.data,last_name=form.last_name.data)
+            user.set_password(form.password.data)
+            db.session.add(user)
+            db.session.commit()
+            flash('Congratulations, you are now a registered user!')
+            return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/user/<username>',methods=['GET', 'POST'])
@@ -64,44 +73,33 @@ def register():
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     if user.user_type == 'Patient':
-        posts = [
-            {'author': user, 'body': user.user_type},
-            {'author': user, 'body': 'Test post #4'}
-        ]
-        return render_template('patient_portal.html', user=user, posts=posts)
+        form = EditProfileForm()
+        if form.validate_on_submit():
+            print('test')
+            user.groups = form.groups.data
+            user.thoughts = form.thoughts.data
+            db.session.commit()
+            flash('Your changes have been saved.')
+            #return redirect(url_for('edit_profile', username=current_user.username,form=form))
+        elif request.method == 'GET':
+            print('test2')
+            form.thoughts.data = user.thoughts
+            form.groups.data = user.groups
+        return render_template('edit_profile.html', username=current_user.username,form=form)
     else:
+        
         form = GetPatientForm()
         if form.validate_on_submit():
 
             return redirect(url_for('patient_info', patient=form.patient_picked.data))
         return render_template('doctor_portal.html', user=user, form=form)       
 
-@app.route('/edit_profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    form = EditProfileForm()
-    if form.validate_on_submit():
-        current_user.username = form.username.data
-        current_user.about_me = form.about_me.data
-        current_user.groups = form.groups.data
-        current_user.thoughts = form.thoughts.data
-        db.session.commit()
-        flash('Your changes have been saved.')
-        return redirect(url_for('edit_profile'))
-    elif request.method == 'GET':
-        form.username.data = current_user.username
-        form.about_me.data = current_user.about_me
-        form.thoughts.data = current_user.thoughts
-        form.groups.data = current_user.groups
-    return render_template('edit_profile.html', title='Edit Profile',
-                           form=form)
-
 @app.route('/patient_info/<patient>',methods=['GET', 'POST'])
 @login_required
 def patient_info(patient):
     user = User.query.filter_by(username=patient).first_or_404()
-    fhir_id = '09075876-bd10-46cf-9455-d55dc7df9f59'
-    fhObj = fhirHelper(fhir_id)
+    #fhir_id = '09075876-bd10-46cf-9455-d55dc7df9f59'
+    fhObj = fhirHelper(user.fhir_id)
     sad_sum = fhObj.getPatientGender()
     age = fhObj.getPatientAge()
     if age < 19 or age > 45:
@@ -114,7 +112,8 @@ def patient_info(patient):
     if user.groups == 'Bad' or user.groups == 'Very Bad':
         sad_sum += 1    
     conditions = fhObj.getPatientConditions()
-    con_list = ['depression','addict','alcohol','overdose','chronic']
+    codes = fhObj.getPatientConditionCodes()
+    con_list = getConditionsList()
     for con in conditions:
         for l in con_list:
             if con.find(l) >= 0:
@@ -126,4 +125,4 @@ def patient_info(patient):
     else:
         risk = 'High'
 
-    return render_template('patient_info.html',patient=patient, risk=sad_sum)
+    return render_template('patient_info.html',patient=patient, risk=risk)
