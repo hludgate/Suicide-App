@@ -113,7 +113,7 @@ def patient_info(patient):
         sad_sum += 1    
     conditions = fhObj.getPatientConditions()
     codes = fhObj.getPatientConditionCodes()
-    con_list = getConditionsList()
+    con_list = fhObj.getConditionsList()
     for con in conditions:
         for l in con_list:
             if con.find(l) >= 0:
