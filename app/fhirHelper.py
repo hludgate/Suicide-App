@@ -113,7 +113,7 @@ class fhirHelper(object):
         #print(temp)
         conditions.append(temp)
     return conditions
-  def getConditionsList(self)
+  def getConditionsList(self):
     cons = ['depress','addict','alcohol','overdose','chronic','obesity','seizure','epilepsy','smoke','dimentia','alzheimer','suicide','psychotic','alcoholism']
     return cons
 
